@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.ToolBar?>
+<?import javafx.scene.layout.VBox?>
+
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.text.Text?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TableColumn?>
+<VBox fx:id="mainVBox" alignment="center" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sample.Controller">
+    <MenuBar>
+        <Menu text="Contacts">
+            <MenuItem text="Add" fx:id="addContactHandler" onAction="#newContactDialog"/>
+        </Menu>
+    </MenuBar>
+    <TableView fx:id="contactTableView">
+        <columns>
+            <TableColumn text="First Name" fx:id="firstNames"/>
+            <TableColumn text="Last Name" fx:id="lastNames"/>
+            <TableColumn text="Phone Number" fx:id="phoneNumbers"/>
+            <TableColumn text="Notes" fx:id="notes"/>
+        </columns>
+    </TableView>
+</VBox>
