@@ -1,63 +1,62 @@
 package pl.damian;
 
 import java.io.*;
-import java.time.LocalDate;
 import java.util.*;
 
 /**
  * Created by timbuchalka on 2/04/2016.
  */
 public class Locations implements Map<Integer, Location> {
-    private static Map<Integer, Location> locations = new HashMap<Integer, Location>();
-
+    private static Map<Integer, Location> locations = new LinkedHashMap<Integer, Location>();
 
     public static void main(String[] args) throws IOException {
-       try(DataOutputStream locFile = new DataOutputStream(new BufferedOutputStream(new FileOutputStream("locations.dat")))){
-           for(Location location : locations.values()) {
-               locFile.writeInt(location.getLocationID());
-               locFile.writeUTF(location.getDescription());
-               System.out.println("Writing location" + location.getLocationID() + " : " + location.getDescription());
-               System.out.println("Writing " + (location.getExits().size()-1) + "exits.");
-               locFile.writeInt(location.getExits().size()-1);
-               for(String direction : location.getExits().keySet()) {
-                   if(!direction.equalsIgnoreCase("Q")) {
-                       System.out.println("\t\t" + direction + "," + location.getExits().get(direction));
-                       locFile.writeUTF(direction);
-                       locFile.writeInt(location.getExits().get(direction));
-                   }
-               }
-           }
-       }
+
+//        try (DataOutputStream locFile = new DataOutputStream(new BufferedOutputStream(new FileOutputStream("locations.dat")))) {
+//            for (Location location : locations.values()) {
+//                locFile.writeInt(location.getLocationID());
+//                locFile.writeUTF(location.getDescription());
+//                System.out.println("Writing location " + location.getLocationID() + " : " + location.getDescription());
+//                System.out.println("Writing " + (location.getExits().size() - 1) + " exits.");
+//                locFile.writeInt(location.getExits().size() - 1);
+//                for (String direction : location.getExits().keySet()) {
+//                    if (!direction.equalsIgnoreCase("Q")) {
+//                        System.out.println("\t\t" + direction + "," + location.getExits().get(direction));
+//                        locFile.writeUTF(direction);
+//                        locFile.writeInt(location.getExits().get(direction));
+//                    }
+//                }
+//            }
+//        }
+        try (ObjectOutputStream locFile = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream("locations.dat")))) {
+            for (Location location : locations.values()){
+                locFile.writeObject(location);
+            }
+        }
     }
 
     static {
 
-        try (BufferedReader s = new BufferedReader(new FileReader("locations.txt"));
-             Scanner se = new Scanner(new BufferedReader(new FileReader("directions.txt")))) {
-            String input1;
-            while ((input1 = s.readLine()) != null) {
-                String[] data = input1.split(",");
-                int loc = Integer.parseInt(data[0]);
-                String description = data[1];
-                Map<String, Integer> tempExit = new HashMap<>();
-                locations.put(loc, new Location(loc, description, tempExit));
+            try (ObjectInputStream locFile = new ObjectInputStream(new BufferedInputStream(new FileInputStream("locations.dat")))) {
+                boolean eof = false;
+                while (!eof) {
+                    try {
+                        Location location = (Location) locFile.readObject();
+                        System.out.println("Read location " + location.getLocationID() + " : " + location.getDescription());
+                        System.out.println("Found " + location.getExits().size() + " exits");
 
+                        locations.put(location.getLocationID(), location);
+                    } catch (EOFException e) {
+                        eof = true;
+                    }
+                }
+            }catch (InvalidClassException e){
+                e.getMessage();
+            }catch (IOException io){
+                System.out.println("IOException " + io.getMessage());
+            } catch (ClassNotFoundException e) {
+                System.out.println("ClassNotFoundException " + e.getMessage());
             }
-            while (se.hasNextLine()) {
-                String input = se.nextLine();
-                String[] data = input.split(",");
-                int loc = Integer.parseInt(data[0]);
-                String direction = data[1];
-                int destination = Integer.parseInt(data[2]);
-                System.out.println(loc + ": " + direction + ": " + destination);
-                Location location = locations.get(loc);
-                location.addExit(direction, destination);
-            }
-
-        } catch (IOException e) {
-            e.printStackTrace();
         }
-    }
 
     @Override
     public int size() {
